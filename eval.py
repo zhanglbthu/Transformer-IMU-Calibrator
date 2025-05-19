@@ -11,8 +11,6 @@ model = TIC(stack=3, n_input=6 * (3 + 3 * 3), n_output=6 * 6)
 model.restore('./checkpoint/TIC_13.pth')
 model = model.to(device).eval()
 
-
-
 tag = 'TIC'
 folders = ['s1', 's2', 's3', 's4', 's5']
 # folders = ['s1']

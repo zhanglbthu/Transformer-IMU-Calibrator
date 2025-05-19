@@ -23,5 +23,6 @@ class paths:
     dipimu_dir = 'E:\DATA\DIP_IMU6'      # output path for the preprocessed DIP-IMU dataset
 
     tic_dataset_dir = '/root/autodl-tmp/data/TIC_Dataset'
+    livedemo_dataset_dir = '/root/autodl-tmp/data/livedemo'
 
     smpl_file = './SMPL_MALE.pkl'  # official SMPL model path

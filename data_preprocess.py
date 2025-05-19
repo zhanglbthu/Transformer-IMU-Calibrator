@@ -25,8 +25,10 @@ def process_amass(smooth_n=3):
                  for i in range(0, v.shape[0] - smooth_n * 2)])
         return acc
 
-    vi_mask = torch.tensor([1961, 5424, 1176, 4662, 411, 3021])
-    ji_mask = torch.tensor([18, 19, 4, 5, 15, 0])
+    # vi_mask = torch.tensor([1961, 5424, 1176, 4662, 411, 3021])
+    vi_mask = torch.tensor([1961, 5424, 876, 4362, 411, 3021])
+    # ji_mask = torch.tensor([18, 19, 4, 5, 15, 0])
+    ji_mask = torch.tensor([18, 19, 1, 2, 15, 0])
 
     body_model = art.ParametricModel(paths.smpl_file)
 
@@ -111,7 +113,8 @@ def amass_head_acc_syn(smooth_n=3):
                  for i in range(0, v.shape[0] - smooth_n * 2)])
         return acc
 
-    vi_mask = torch.tensor([1961, 5424, 1176, 4662, 411, 3021])
+    # vi_mask = torch.tensor([1961, 5424, 1176, 4662, 411, 3021])
+    vi_mask = torch.tensor([1961, 5424, 876, 4362, 411, 3021])
     head_vi_mask = torch.tensor([133,134,159,169,254,271,335,385,3645,3646,3673,3679,3764,3784])
 
     body_model = art.ParametricModel(paths.smpl_file)
