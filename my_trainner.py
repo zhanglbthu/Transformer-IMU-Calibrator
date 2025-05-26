@@ -54,8 +54,8 @@ class TicTrainner(BaseTrainer):
 
             for data in tqdm(data_loader):
                 rot, acc = data
-                rot = rot.to(device) # [128, 256, 6, 3, 3]
-                acc = acc.to(device) # [128, 256, 6, 3, 1]
+                rot = rot.to(device) # [128, 256, 2, 3, 3]
+                acc = acc.to(device) # [128, 256, 2, 3, 1]
 
 
                 rot, acc, drift, offset = imu_drift_offset_simulation(imu_rot=rot, imu_acc=acc, imu_num=config.imu_num,
@@ -63,7 +63,7 @@ class TicTrainner(BaseTrainer):
                                                                       offset_range=45, random_global_yaw=True)
 
                 rot, acc, drift, offset = rot.flatten(2), acc.flatten(2), drift.flatten(1), offset.flatten(1)
-                # rot: [128, 256, 54]; acc: [128, 256, 18]; drift: [128, 36]; offset: [128, 36]
+                # rot: [128, 256, 18]; acc: [128, 256, 6]; drift: [128, 12]; offset: [128, 12]
                 acc /= 30
 
                 x = torch.cat([acc, rot], dim=-1)

@@ -21,6 +21,9 @@ class TIC(BaseModel):
         n_output: [36] = [6 * 6]
         """
         super().__init__()
+        # print n_input, n_output
+        print(f"TIC Network: input: {n_input}, output: {n_output}")
+    
         self.input_embedding_layer = Embedder(n_input=n_input, d_model=d_model)
         # self.input_pe = PositionalEncoding(d_model)
         self.encoder_stack = []

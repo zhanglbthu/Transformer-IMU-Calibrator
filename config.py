@@ -1,6 +1,6 @@
 import torch
 
-imu_num = 6
+imu_num = 2
 unit_r6d = torch.FloatTensor([[1, 0, 0, 0, 1, 0]])
 
 amass_data = ['HumanEva', 'MPI_HDM05', 'SFU', 'MPI_mosh', 'Transitions_mocap', 'SSM_synced', 'CMU',
@@ -14,13 +14,9 @@ class joint_set:
 
 
 class paths:
-    imu4_dir = 'E:\DATA\processed_data\\'  # 采集的数据的路径
 
     raw_amass_dir = '/root/autodl-tmp/data/AMASS'      # raw AMASS dataset path (raw_amass_dir/ACCAD/ACCAD/s001/*.npz)
     amass_dir = '/root/autodl-tmp/data/AMASS_IMU6'  # output path for the synthetic AMASS dataset
-
-    raw_dipimu_dir = 'E:\DATA\DIP-IMU\DIP_IMU'   # raw DIP-IMU dataset path (raw_dipimu_dir/s_01/*.pkl)
-    dipimu_dir = 'E:\DATA\DIP_IMU6'      # output path for the preprocessed DIP-IMU dataset
 
     tic_dataset_dir = '/root/autodl-tmp/data/TIC_Dataset'
     livedemo_dataset_dir = '/root/autodl-tmp/data/livedemo'

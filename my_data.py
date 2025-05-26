@@ -9,7 +9,10 @@ from tqdm import tqdm
 from Aplus.tools.annotations import timing
 import articulate as art
 
-def amass_read_seg(path, min_len=128, step=2, read_rate=1):
+def amass_read_seg(path, min_len=128, step=2, read_rate=1, combo=None):
+    '''
+    downsample amass data to 30fps
+    '''
     data = torch.load(path)
     selected_data = []
     seg_info = []
@@ -26,6 +29,10 @@ def amass_read_seg(path, min_len=128, step=2, read_rate=1):
         selected_data = selected_data[:seq_num]
         seg_info = seg_info[:seq_num]
     data = torch.cat(selected_data, dim=0)
+    
+    # select combo in data
+    if combo is not None:
+        data = data[:, combo]
 
     return data, seg_info
 
@@ -135,12 +142,12 @@ class IMUData(BaseDataset):
             Dict of datas.
         """
 
-        rot, seg_info = amass_read_seg(os.path.join(folder_path, 'vrot.pt'), min_len=256,step=step, read_rate=read_rate)
-        acc, _ = amass_read_seg(os.path.join(folder_path, 'vacc.pt'), min_len=256, step=step, read_rate=read_rate)
+        rot, seg_info = amass_read_seg(os.path.join(folder_path, 'vrot.pt'), min_len=256,step=step, read_rate=read_rate, combo=[0, 3])
+        acc, _ = amass_read_seg(os.path.join(folder_path, 'vacc.pt'), min_len=256, step=step, read_rate=read_rate, combo=[0, 3])
         head_acc, _ = amass_read_seg(os.path.join(folder_path, 'vacc_head14.pt'), min_len=256, step=step, read_rate=read_rate)
 
         rot = rot.reshape(-1, config.imu_num, 3, 3)
-        acc = torch.clamp(acc, min=-90, max=90)
+        acc = torch.clamp(acc, min=-90, max=90).reshape(-1, config.imu_num, 3)
         head_acc = torch.clamp(head_acc, min=-90, max=90).unsqueeze(-1)
         acc = acc.unsqueeze(-1)
 

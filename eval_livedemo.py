@@ -6,6 +6,7 @@ from evaluation_functions import *
 
 import os
 
+
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 model = TIC(stack=3, n_input=6 * (3 + 3 * 3), n_output=6 * 6)
 model.restore('./checkpoint/TIC_13.pth')
