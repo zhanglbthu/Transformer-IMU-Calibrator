@@ -135,3 +135,40 @@ def imu_drift_offset_simulation(imu_rot, imu_acc, imu_num=6, ego_imu_id=-1, drif
 
     return imu_rot, imu_acc, drift, offset
 
+def imu_offset_simulation(imu_rot, imu_acc, imu_num=2, acc_noise=0.025):
+    batch_size = imu_rot.shape[0]
+    seq_len = imu_rot.shape[1]
+    
+    yaw_range = (85 / 180) * torch.pi
+    pitch_range = (30 / 180) * torch.pi
+    roll_range = (10 / 180) * torch.pi
+    
+    GA = torch.FloatTensor([[0, -9.80665, 0]])
+    
+    # add acc noise
+    imu_acc = add_gaussian_noise(imu_acc, sigma=acc_noise)
+    
+    # add offset
+    drift = torch.zeros(batch_size, imu_num, 3).to(imu_rot.device)
+    offset = torch.zeros(batch_size, imu_num, 3).to(imu_rot.device)
+    
+    offset[:, 1, 0] = offset[:, 1, 0].uniform_(-yaw_range, yaw_range)
+    offset[:, 1, 1] = offset[:, 1, 1].uniform_(-pitch_range, pitch_range)
+    offset[:, 1, 2] = offset[:, 1, 2].uniform_(-roll_range, roll_range)
+    
+    # random scaling
+    scale_mask = torch.zeros(batch_size, 1, 1).uniform_(0, 1).to(offset.device)
+    offset *= scale_mask
+    
+    drift = euler_angle_to_rotation_matrix(drift, seq='YZX').reshape(batch_size, imu_num, 3, 3)
+    offset = euler_angle_to_rotation_matrix(offset, seq='YZX').reshape(batch_size, imu_num, 3, 3)
+    
+    # adding offset
+    offset = offset.unsqueeze(1).repeat(1, seq_len, 1, 1, 1)
+    imu_rot = imu_rot.matmul(offset)
+
+    offset = rotation_matrix_to_r6d(offset[:, 0].reshape(-1, 3, 3)).reshape(batch_size, imu_num, 6)
+    drift = rotation_matrix_to_r6d(drift).reshape(batch_size, imu_num, 6)
+    
+    return imu_rot, imu_acc, drift, offset
+    

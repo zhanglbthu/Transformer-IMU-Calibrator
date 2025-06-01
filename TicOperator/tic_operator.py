@@ -51,8 +51,12 @@ def rotation_diversity(rot):
 class TicOperator():
     def __init__(self, TIC_network, imu_num=6, ego_imu_idx=-1, data_frame_rate=60):
         self.buffer_size = 512
-        self.TR_drift = torch.Tensor([10, 10, 10, 10, 10, 0]) * 1
-        self.TR_offset = torch.Tensor([30, 50, 30, 30, 25, 15]) * 1
+        # self.TR_drift = torch.Tensor([10, 10, 10, 10, 10, 0]) * 1
+        # self.TR_offset = torch.Tensor([30, 50, 30, 30, 25, 15]) * 1
+        # self.TR_drift = torch.Tensor([10, 0]) * 1
+        # self.TR_offset = torch.Tensor([30, 30]) * 1
+        self.TR_drift = torch.Tensor([-1, -1]) * 1
+        self.TR_offset = torch.Tensor([-1, -1]) * 1
         self.data_frame_rate=data_frame_rate
         self.ego_idx = ego_imu_idx
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -84,10 +88,10 @@ class TicOperator():
         return torch.cat([acc.flatten(1), rot.flatten(1)], dim=-1)
 
     @torch.no_grad()
-    def dynamic_calibration(self):
-        if len(self.data_buffer) < 512:
+    def dynamic_calibration(self, idx = None):
+        if len(self.data_buffer) < 128:
             return
-        frame_nums = 512
+        frame_nums = 128
 
         # down sample
         acc_cat_oris = torch.stack(self.data_buffer[-frame_nums:]).reshape(frame_nums, -1)[::self.data_frame_rate//30]
@@ -128,6 +132,8 @@ class TicOperator():
         skip_count_offset = torch.sum(skip_mask_offset).item()
 
         if min(skip_count_drift, skip_count_offset) < self.imu_num:
+            if idx is not None:
+                print(f'idx: {idx}')
             if skip_count_drift > 0:
                 delta_R_DG[skip_mask_drift, :, :] = torch.eye(3).unsqueeze(0).repeat(skip_count_drift, 1, 1)
             if skip_count_offset > 0:
@@ -137,7 +143,6 @@ class TicOperator():
             self.R_BS = delta_R_BS.matmul(self.R_BS)
 
             self.data_buffer = []
-
 
     def run(self, rot, acc, trigger_t=1):
         self.reset()
@@ -155,7 +160,7 @@ class TicOperator():
             pred_drift.append(self.R_DG.clone())
             pred_offset.append(self.R_BS.clone())
             if i % trigger_gap == 0:
-                self.dynamic_calibration()
+                self.dynamic_calibration(idx=i)
             if len(self.data_buffer) > self.buffer_size:
                 self.data_buffer = self.data_buffer[-self.buffer_size:]
 

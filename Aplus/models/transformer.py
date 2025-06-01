@@ -170,7 +170,6 @@ class EncoderLayer(nn.Module):
         if self.res_connect:
             y2 = y + y2
 
-
         return y2
 
 class Encoder(nn.Module):

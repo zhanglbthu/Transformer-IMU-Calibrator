@@ -33,7 +33,7 @@ class TicTrainner(BaseTrainer):
 
 
     def run(self, epoch, data_shuffle=True, evaluator=None, noise_sigma=None):
-        from simulations import imu_drift_offset_simulation
+        from simulations import imu_drift_offset_simulation, imu_offset_simulation
 
         # 获取当前模型所在device
         device = self.get_model_device()
@@ -58,9 +58,10 @@ class TicTrainner(BaseTrainer):
                 acc = acc.to(device) # [128, 256, 2, 3, 1]
 
 
-                rot, acc, drift, offset = imu_drift_offset_simulation(imu_rot=rot, imu_acc=acc, imu_num=config.imu_num,
-                                                                      ego_imu_id=-1, drift_range=60,
-                                                                      offset_range=45, random_global_yaw=True)
+                # rot, acc, drift, offset = imu_drift_offset_simulation(imu_rot=rot, imu_acc=acc, imu_num=config.imu_num,
+                #                                                       ego_imu_id=-1, drift_range=60,
+                #                                                       offset_range=45, random_global_yaw=True)
+                rot, acc, drift, offset = imu_offset_simulation(imu_rot=rot, imu_acc=acc, imu_num=config.imu_num)
 
                 rot, acc, drift, offset = rot.flatten(2), acc.flatten(2), drift.flatten(1), offset.flatten(1)
                 # rot: [128, 256, 18]; acc: [128, 256, 6]; drift: [128, 12]; offset: [128, 12]
