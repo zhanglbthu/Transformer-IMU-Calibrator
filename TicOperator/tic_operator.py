@@ -50,9 +50,11 @@ def rotation_diversity(rot):
 
 class TicOperator():
     def __init__(self, TIC_network, imu_num=6, ego_imu_idx=-1, data_frame_rate=60):
-        self.buffer_size = 512
-        self.TR_drift = torch.Tensor([10, 10, 10, 10, 10, 0]) * 1
-        self.TR_offset = torch.Tensor([30, 50, 30, 30, 25, 15]) * 1
+        self.buffer_size = 512  
+        # self.TR_drift = torch.Tensor([10, 10, 10, 10, 10, 0]) * 1
+        # self.TR_offset = torch.Tensor([30, 50, 30, 30, 25, 15]) * 1
+        self.TR_drift = torch.Tensor([-1, -1]) * 1
+        self.TR_offset = torch.Tensor([-1, -1]) * 1
         self.data_frame_rate=data_frame_rate
         self.ego_idx = ego_imu_idx
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -85,9 +87,9 @@ class TicOperator():
 
     @torch.no_grad()
     def dynamic_calibration(self):
-        if len(self.data_buffer) < 512:
+        if len(self.data_buffer) < 128:
             return
-        frame_nums = 512
+        frame_nums = 128
 
         # down sample
         acc_cat_oris = torch.stack(self.data_buffer[-frame_nums:]).reshape(frame_nums, -1)[::self.data_frame_rate//30]
@@ -128,6 +130,7 @@ class TicOperator():
         skip_count_offset = torch.sum(skip_mask_offset).item()
 
         if min(skip_count_drift, skip_count_offset) < self.imu_num:
+            print(f'perform TIC calibration')
             if skip_count_drift > 0:
                 delta_R_DG[skip_mask_drift, :, :] = torch.eye(3).unsqueeze(0).repeat(skip_count_drift, 1, 1)
             if skip_count_offset > 0:
