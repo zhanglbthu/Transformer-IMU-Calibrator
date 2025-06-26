@@ -89,9 +89,9 @@ class TicOperator():
 
     @torch.no_grad()
     def dynamic_calibration(self, idx = None):
-        if len(self.data_buffer) < 128:
+        if len(self.data_buffer) < 256:
             return
-        frame_nums = 128
+        frame_nums = 256
 
         # down sample
         acc_cat_oris = torch.stack(self.data_buffer[-frame_nums:]).reshape(frame_nums, -1)[::self.data_frame_rate//30]
